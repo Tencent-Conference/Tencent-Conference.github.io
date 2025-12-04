@@ -81,27 +81,32 @@
 
     <script>
         function addToCalendar() {
-            // Event Details extracted from your image
+            // --- 1. DEFINE EVENT TIME (PST) ---
+            // 5:30 PM PST (GMT-0800)
+            const startDatePST = new Date("2025-12-06T17:30:00-08:00");
+            const endDatePST   = new Date("2025-12-06T21:30:00-08:00");
+
+            // --- 2. CONVERT TO UTC (Z-Time) ---
+            const formatICS = (date) => date.toISOString().replace(/[-:]/g, '').split('.')[0] + "Z";
+            const startUTC = formatICS(startDatePST);
+            const endUTC   = formatICS(endDatePST);
+
             const eventConfig = {
-                title: "腾讯青云NeurIPS晚宴", // 1. 已修改为您的指定名称
-                start: "20251206T173000", // Dec 6, 2025, 17:30
-                end: "20251206T213000",   // Dec 6, 2025, 21:30
+                title: "腾讯青云NeurIPS晚宴",
                 location: "Malibu Farm, San Diego",
                 description: "青云计划邀请函：圣地亚哥 余晖漫想夜"
             };
 
-            // Generate .ics content
-            // TZID=America/Los_Angeles ensures the time is treated as PST
-            // Added VALARM for 30 minute reminder
+            // --- 3. GENERATE ICS CONTENT ---
             const icsContent = 
 `BEGIN:VCALENDAR
 VERSION:2.0
-PRODID:-//My Invite//EN
+PRODID:-//Tencent//NeurIPS Dinner//EN
 BEGIN:VEVENT
-UID:${Date.now()}@default
-DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0]}Z
-DTSTART;TZID=America/Los_Angeles:${eventConfig.start}
-DTEND;TZID=America/Los_Angeles:${eventConfig.end}
+UID:${Date.now()}@tencent
+DTSTAMP:${formatICS(new Date())}
+DTSTART:${startUTC}
+DTEND:${endUTC}
 SUMMARY:${eventConfig.title}
 LOCATION:${eventConfig.location}
 DESCRIPTION:${eventConfig.description}
@@ -113,20 +118,21 @@ END:VALARM
 END:VEVENT
 END:VCALENDAR`;
 
-            // Create download link
-            const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-            const link = document.createElement('a');
-            link.href = window.URL.createObjectURL(blob);
-            link.setAttribute('download', 'event.ics');
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            // --- 4. THE DIRECT LAUNCH TRICK ---
+            
+            // We use encodeURIComponent to turn the text into a browser-readable URL string
+            const href = "data:text/calendar;charset=utf-8," + encodeURIComponent(icsContent);
+            
+            // Instead of "downloading", we navigate the window to this data.
+            // On iOS, this triggers the Calendar import sheet directly.
+            window.location.href = href;
         }
     </script>
 
 </body>
 
 </html>
+
 
 
 
