@@ -83,7 +83,7 @@
         function addToCalendar() {
             // Event Details extracted from your image
             const eventConfig = {
-                title: "青云计划 - 群星未来之夜",
+                title: "腾讯青云NeurIPS晚宴", // 1. 已修改为您的指定名称
                 start: "20251206T173000", // Dec 6, 2025, 17:30
                 end: "20251206T213000",   // Dec 6, 2025, 21:30
                 location: "Malibu Farm, San Diego",
@@ -92,6 +92,7 @@
 
             // Generate .ics content
             // TZID=America/Los_Angeles ensures the time is treated as PST
+            // Added VALARM for 30 minute reminder
             const icsContent = 
 `BEGIN:VCALENDAR
 VERSION:2.0
@@ -104,6 +105,11 @@ DTEND;TZID=America/Los_Angeles:${eventConfig.end}
 SUMMARY:${eventConfig.title}
 LOCATION:${eventConfig.location}
 DESCRIPTION:${eventConfig.description}
+BEGIN:VALARM
+TRIGGER:-PT30M
+ACTION:DISPLAY
+DESCRIPTION:Reminder
+END:VALARM
 END:VEVENT
 END:VCALENDAR`;
 
@@ -119,4 +125,5 @@ END:VCALENDAR`;
     </script>
 
 </body>
+
 </html>
